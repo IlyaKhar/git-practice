@@ -3,208 +3,151 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Поставьте 5, пожалуйста! 🐾❤️</title>
+  <title>Практика Git — Илья</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Фиксированный полноэкранный контейнер без скролла страницы -->
-  <main class="scene" id="scene">
-    <!-- Тонкие атмосферные неоновые блики -->
-    <div class="ambient-glow" id="ambientGlow"></div>
-
-    <!-- Верхний фиксированный бейдж -->
-    <header class="top-bar">
-      <div class="status-pill">
-        <span class="status-dot"></span>
-        <span>Git Practice • IlyaKhar</span>
+  <div class="app" id="app">
+    
+    <!-- Верхняя минималистичная панель -->
+    <header class="top-nav">
+      <div class="project-tag">
+        <span class="dot"></span>
+        <span class="tag-text">git-practice</span>
+        <span class="tag-branch">main</span>
       </div>
-      <a href="https://github.com/IlyaKhar/git-practice" target="_blank" rel="noopener noreferrer" class="github-badge">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
-        </svg>
-        <span>GitHub</span>
+      <a href="https://github.com/IlyaKhar/git-practice" target="_blank" rel="noopener noreferrer" class="nav-link">
+        GitHub ↗
       </a>
     </header>
 
-    <!-- Центр сцены: Кот и сменяющийся контент -->
-    <div class="stage">
+    <!-- Основная рабочая область -->
+    <main class="viewport">
       
-      <!-- 1 Котик в центре (чистый интерактивный SVG) -->
-      <div class="cat-hero" id="catHero">
-        <div class="cat-aura" id="catAura"></div>
-        <svg class="cat-svg" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <radialGradient id="catBodyGrad" cx="50%" cy="35%" r="65%">
-              <stop offset="0%" stop-color="#2a2e3a"/>
-              <stop offset="70%" stop-color="#14161d"/>
-              <stop offset="100%" stop-color="#0a0c10"/>
-            </radialGradient>
-            <radialGradient id="earInnerGrad" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="#ff9eb5"/>
-              <stop offset="100%" stop-color="#e25575"/>
-            </radialGradient>
-            <radialGradient id="eyeGrad" cx="35%" cy="35%" r="65%">
-              <stop offset="0%" stop-color="#00f2fe"/>
-              <stop offset="50%" stop-color="#4facfe"/>
-              <stop offset="100%" stop-color="#003566"/>
-            </radialGradient>
-          </defs>
-
-          <!-- Тень под котиком -->
-          <ellipse cx="160" cy="285" rx="85" ry="12" fill="rgba(0,0,0,0.8)" />
-
-          <!-- Хвостик -->
-          <path class="cat-tail" d="M 225 240 C 275 230 285 175 255 155 C 245 145 235 160 242 170 C 255 188 245 218 215 228 Z" fill="#181a22" />
-
+      <!-- Иллюстрация кота (строгая векторная графика) -->
+      <div class="cat-box" id="catBox">
+        <svg class="cat-svg" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Тень -->
+          <ellipse cx="120" cy="216" rx="60" ry="8" fill="#111111" />
+          
+          <!-- Хвост -->
+          <path class="cat-tail" d="M165 180C195 175 205 140 185 125C175 118 168 128 174 136C182 148 176 168 155 174" stroke="#222222" stroke-width="12" stroke-linecap="round"/>
+          
           <!-- Тело -->
-          <ellipse cx="160" cy="225" rx="75" ry="58" fill="url(#catBodyGrad)" stroke="rgba(255,255,255,0.06)" stroke-width="1.5" />
-
-          <!-- Грудка -->
-          <ellipse cx="160" cy="235" rx="36" ry="38" fill="#f0f4fa" opacity="0.95" />
-
-          <!-- Ушки -->
-          <g class="cat-ears">
-            <polygon class="cat-ear ear-left" points="95,140 120,70 150,125" fill="#181a22" />
-            <polygon points="105,135 122,85 142,125" fill="url(#earInnerGrad)" opacity="0.85" />
-            <polygon class="cat-ear ear-right" points="225,140 200,70 170,125" fill="#181a22" />
-            <polygon points="215,135 198,85 178,125" fill="url(#earInnerGrad)" opacity="0.85" />
-          </g>
+          <rect x="75" y="125" width="90" height="85" rx="42" fill="#1a1a1a" stroke="#262626" stroke-width="2"/>
+          <ellipse cx="120" cy="170" rx="26" ry="32" fill="#242424"/>
+          
+          <!-- Уши -->
+          <path class="ear-l" d="M82 95L95 48L118 85Z" fill="#1a1a1a" stroke="#262626" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M88 90L96 58L112 83Z" fill="#2a2224"/>
+          <path class="ear-r" d="M158 95L145 48L122 85Z" fill="#1a1a1a" stroke="#262626" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M152 90L144 58L128 83Z" fill="#2a2224"/>
 
           <!-- Голова -->
-          <ellipse class="cat-head" cx="160" cy="150" rx="65" ry="55" fill="url(#catBodyGrad)" stroke="rgba(255,255,255,0.06)" stroke-width="1.5" />
+          <rect class="cat-head" x="72" y="70" width="96" height="82" rx="40" fill="#1a1a1a" stroke="#262626" stroke-width="2"/>
 
-          <!-- Глазки -->
+          <!-- Глаза -->
           <g class="cat-eyes">
-            <g class="eye-group eye-l">
-              <ellipse cx="135" cy="145" rx="14" ry="18" fill="url(#eyeGrad)" />
-              <ellipse cx="135" cy="145" rx="5" ry="14" fill="#000814" />
-              <circle cx="131" cy="138" r="4.5" fill="#ffffff" />
-              <circle cx="138" cy="150" r="2" fill="#ffffff" />
-            </g>
-            <g class="eye-group eye-r">
-              <ellipse cx="185" cy="145" rx="14" ry="18" fill="url(#eyeGrad)" />
-              <ellipse cx="185" cy="145" rx="5" ry="14" fill="#000814" />
-              <circle cx="181" cy="138" r="4.5" fill="#ffffff" />
-              <circle cx="188" cy="150" r="2" fill="#ffffff" />
-            </g>
+            <circle cx="102" cy="108" r="8" fill="#ffffff"/>
+            <circle cx="103" cy="108" r="5" fill="#000000"/>
+            <circle cx="105" cy="106" r="2" fill="#ffffff"/>
+
+            <circle cx="138" cy="108" r="8" fill="#ffffff"/>
+            <circle cx="137" cy="108" r="5" fill="#000000"/>
+            <circle cx="139" cy="106" r="2" fill="#ffffff"/>
           </g>
 
-          <!-- Носик и ротик -->
-          <polygon points="160,165 153,158 167,158" fill="#ff8da7" />
-          <path d="M 153 167 Q 160 174 160 168 Q 160 174 167 167" fill="none" stroke="#f0f4fa" stroke-width="2.5" stroke-linecap="round" />
+          <!-- Нос и мордочка -->
+          <polygon points="120,119 116,115 124,115" fill="#e05666"/>
+          <path d="M115 122Q120 126 120 123Q120 126 125 122" stroke="#444444" stroke-width="1.5" stroke-linecap="round"/>
 
-          <!-- Усики -->
-          <g stroke="#ffffff" stroke-width="1.2" opacity="0.65" stroke-linecap="round">
-            <line x1="138" y1="162" x2="88" y2="155" />
-            <line x1="138" y1="168" x2="82" y2="170" />
-            <line x1="138" y1="174" x2="92" y2="185" />
-            <line x1="182" y1="162" x2="232" y2="155" />
-            <line x1="182" y1="168" x2="238" y2="170" />
-            <line x1="182" y1="174" x2="228" y2="185" />
+          <!-- Усы -->
+          <g stroke="#3a3a3a" stroke-width="1.2" stroke-linecap="round">
+            <line x1="105" y1="118" x2="68" y2="114"/>
+            <line x1="105" y1="122" x2="65" y2="124"/>
+            <line x1="135" y1="118" x2="172" y2="114"/>
+            <line x1="135" y1="122" x2="175" y2="124"/>
           </g>
 
-          <!-- Лапки -->
-          <ellipse cx="135" cy="270" rx="18" ry="12" fill="#f0f4fa" />
-          <ellipse cx="185" cy="270" rx="18" ry="12" fill="#f0f4fa" />
-          <circle cx="135" cy="268" r="2.5" fill="#ffb4c5" />
-          <circle cx="185" cy="268" r="2.5" fill="#ffb4c5" />
+          <!-- Лапы -->
+          <ellipse cx="104" cy="205" rx="14" ry="9" fill="#242424" stroke="#2a2a2a" stroke-width="1.5"/>
+          <ellipse cx="136" cy="205" rx="14" ry="9" fill="#242424" stroke="#2a2a2a" stroke-width="1.5"/>
         </svg>
 
-        <!-- Неоновое пульсирующее сердечко (появляется при свайпе) -->
-        <div class="floating-heart" id="floatingHeart">
-          <svg viewBox="0 0 100 100" class="heart-icon-svg">
-            <defs>
-              <linearGradient id="heartGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#ff1361" />
-                <stop offset="50%" stop-color="#fff800" />
-                <stop offset="100%" stop-color="#ff1361" />
-              </linearGradient>
-              <radialGradient id="heartPinkGrad" cx="30%" cy="30%" r="70%">
-                <stop offset="0%" stop-color="#ff4b72" />
-                <stop offset="50%" stop-color="#ff0844" />
-                <stop offset="100%" stop-color="#b8002f" />
-              </radialGradient>
-              <filter id="heartGlow">
-                <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#ff0844" flood-opacity="0.9"/>
-                <feDropShadow dx="0" dy="0" stdDeviation="20" flood-color="#ff2a6d" flood-opacity="0.6"/>
-              </filter>
-            </defs>
-            <path d="M 50,85 C 50,85 10,60 10,32 C 10,16 23,8 35,8 C 43,8 48,14 50,18 C 52,14 57,8 65,8 C 77,8 90,16 90,32 C 90,60 50,85 50,85 Z" fill="url(#heartPinkGrad)" filter="url(#heartGlow)"/>
+        <!-- Строгое сердечко (появляется при свайпе) -->
+        <div class="heart-badge" id="heartBadge">
+          <svg viewBox="0 0 24 24" width="40" height="40" fill="#e03131">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
           </svg>
-          <span class="heart-digit">5</span>
         </div>
-
-        <!-- Подсказка котика в виде пузыря мыслей -->
-        <div class="cat-speech" id="catSpeech">Мяу! Погладь меня или свайпни 👇</div>
       </div>
 
-      <!-- Состояние 1 (до свайпа): Инструкция свайпа -->
-      <div class="swipe-prompt" id="swipePrompt">
-        <h1 class="prompt-title">Познакомься с Барсиком 🐾</h1>
-        <p class="prompt-subtitle">Свайпни вверх/вниз или прокрути колёсико мыши</p>
+      <!-- Контейнер состояний со слайд-переходом -->
+      <div class="deck">
         
-        <div class="swipe-indicator" id="swipeTrigger">
-          <div class="gesture-icon">
-            <div class="touch-ring"></div>
-            <div class="touch-dot"></div>
+        <!-- Состояние 0: Ожидание действия -->
+        <div class="card state-initial" id="stateInitial">
+          <h1 class="card-title">Практическая работа</h1>
+          <p class="card-desc">Контроль версий Git и публикация репозитория</p>
+          
+          <div class="action-hint" id="swipeTrigger">
+            <span class="hint-arrow">↓</span>
+            <span class="hint-text">Смахните вниз или прокрутите колесо</span>
           </div>
-          <span class="swipe-hint">Свайпни меня</span>
-          <div class="arrow-chevrons">
-            <span></span>
-            <span></span>
+        </div>
+
+        <!-- Состояние 1: Просьба об оценке с механикой выбора -->
+        <div class="card state-rating" id="stateRating">
+          <h2 class="rating-title">Поставьте 5, пожалуйста</h2>
+          <p class="rating-desc">Все шаги выполнены: git init, staging, commits, remote push</p>
+
+          <!-- Интерактивная шкала оценки (механика) -->
+          <div class="grade-selector">
+            <span class="selector-label">Оценка за работу:</span>
+            <div class="grade-buttons" id="gradeButtons">
+              <button class="grade-btn" data-val="1">1</button>
+              <button class="grade-btn" data-val="2">2</button>
+              <button class="grade-btn" data-val="3">3</button>
+              <button class="grade-btn" data-val="4">4</button>
+              <button class="grade-btn selected" data-val="5">5</button>
+            </div>
+            <div class="grade-feedback" id="gradeFeedback">Выбран максимальный балл: 5</div>
+          </div>
+
+          <!-- Кнопка подтверждения -->
+          <div class="action-row">
+            <button class="confirm-btn" id="confirmBtn">
+              Зафиксировать оценку 5
+            </button>
+            <button class="reset-btn" id="resetBtn">
+              Назад
+            </button>
+          </div>
+
+          <!-- Результат фиксации -->
+          <div class="result-box" id="resultBox">
+            <span class="result-check">✓</span>
+            <span>Оценка 5 сохранена в ведомости. Спасибо!</span>
           </div>
         </div>
+
       </div>
 
-      <!-- Состояние 2 (вылезает по свайпу на том же месте!): Просьба о 5-ке -->
-      <div class="plea-modal" id="pleaModal">
-        <h2 class="plea-heading">Поставьте 5, пожалуйста! ❤️</h2>
-        <p class="plea-description">
-          Котик старательно мурчал, Git-репозиторий идеально инициализирован, коммиты безупречные, а зачётка жаждет пятёрки!
-        </p>
+    </main>
 
-        <!-- Кнопки решения -->
-        <div class="action-buttons">
-          <button class="btn-grade-five" id="gradeFiveBtn">
-            <span class="btn-sparkle">✨</span>
-            <span class="btn-text">Поставить 5 прямо сейчас!</span>
-            <div class="btn-flare"></div>
-          </button>
-
-          <button class="btn-doubt" id="doubtBtn">
-            Подумать ещё... 🤔
-          </button>
-        </div>
-
-        <!-- Индикатор успешной оценки -->
-        <div class="success-banner" id="successBanner">
-          <div class="banner-icon">🎉</div>
-          <h3>Оценка 5 официально выставлена!</h3>
-          <p>Вы самый лучший и душевный преподаватель! Котик счастлив! 😻</p>
-        </div>
-
-        <button class="btn-back" id="backBtn">
-          ← Вернуться назад
-        </button>
+    <!-- Нижняя статусная строка -->
+    <footer class="bottom-bar">
+      <div class="step-indicator">
+        <span class="step-dot active" id="step0"></span>
+        <span class="step-dot" id="step1"></span>
       </div>
-
-    </div>
-
-    <!-- Нижняя полоса с навигацией и подсказкой свайпа -->
-    <footer class="bottom-dock">
-      <div class="swipe-mode-toggle" id="modeToggle">
-        <span class="dot-indicator active" id="dot1"></span>
-        <span class="dot-indicator" id="dot2"></span>
-      </div>
-      <div class="dock-caption" id="dockCaption">Свайпни в любую сторону</div>
+      <div class="author-label">Илья • 2026</div>
     </footer>
-  </main>
 
-  <!-- Канвас фейерверка конфетти и сердечек -->
-  <canvas id="fxCanvas"></canvas>
+  </div>
 
   <script src="script.js"></script>
 </body>

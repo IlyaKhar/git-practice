@@ -1,333 +1,170 @@
 /**
- * Интерактивный движок свайпов и анимаций (Zero-Scroll Pure Black Scene)
- * - Поддержка свайпов на тачскринах (touchstart/touchend)
- * - Поддержка колеса мыши и тачпада (wheel)
- * - Поддержка перетаскивания (mouse drag)
- * - Web Audio API звуковые эффекты (котик мяукает, победный аккорд)
- * - Фейерверк сердечек и конфетти на Canvas
+ * Строгая интерактивная механика проекта
+ * - Свайп/скролл жесты для переключения шагов без скролла страницы
+ * - Механика интерактивной шкалы оценок (1-5) со снапом к 5
+ * - Минималистичный тактильный отклик через Web Audio API
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  const scene = document.getElementById('scene');
-  const catHero = document.getElementById('catHero');
-  const catSpeech = document.getElementById('catSpeech');
+  const app = document.getElementById('app');
+  const catBox = document.getElementById('catBox');
   const swipeTrigger = document.getElementById('swipeTrigger');
-  const floatingHeart = document.getElementById('floatingHeart');
-  const gradeFiveBtn = document.getElementById('gradeFiveBtn');
-  const doubtBtn = document.getElementById('doubtBtn');
-  const successBanner = document.getElementById('successBanner');
-  const backBtn = document.getElementById('backBtn');
-  const dot1 = document.getElementById('dot1');
-  const dot2 = document.getElementById('dot2');
-  const dockCaption = document.getElementById('dockCaption');
-  const modeToggle = document.getElementById('modeToggle');
-  const canvas = document.getElementById('fxCanvas');
-  const ctx = canvas.getContext('2d');
+  const resetBtn = document.getElementById('resetBtn');
+  const confirmBtn = document.getElementById('confirmBtn');
+  const resultBox = document.getElementById('resultBox');
+  const gradeButtons = document.querySelectorAll('.grade-btn');
+  const gradeFeedback = document.getElementById('gradeFeedback');
+  const step0 = document.getElementById('step0');
+  const step1 = document.getElementById('step1');
 
-  let isRevealed = false;
-  let isCooldown = false;
+  let isActive = false;
+  let isLocked = false;
 
-  // Ресайз канваса
-  function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  resizeCanvas();
-  window.addEventListener('resize', resizeCanvas);
-
-  // Web Audio Context
+  // Тактильный клик (чистый короткий щелчок на 60мс)
   let audioCtx = null;
-  function getAudio() {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
-    return audioCtx;
-  }
-
-  // Мяуканье котика
-  function playMeow() {
+  function clickFeedback(freq = 600, duration = 0.04) {
     try {
-      const actx = getAudio();
-      const osc = actx.createOscillator();
-      const gain = actx.createGain();
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
 
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(420, actx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(750, actx.currentTime + 0.15);
-      osc.frequency.exponentialRampToValueAtTime(440, actx.currentTime + 0.35);
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
 
-      gain.gain.setValueAtTime(0.01, actx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.25, actx.currentTime + 0.08);
-      gain.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 0.38);
+      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
 
       osc.connect(gain);
-      gain.connect(actx.destination);
+      gain.connect(audioCtx.destination);
 
       osc.start();
-      osc.stop(actx.currentTime + 0.38);
+      osc.stop(audioCtx.currentTime + duration);
     } catch (e) {
-      console.warn(e);
+      // аудио опционально
     }
   }
 
-  // Победный аккорд на 5
-  function playVictorySound() {
-    try {
-      const actx = getAudio();
-      const freqs = [523.25, 659.25, 783.99, 1046.50]; // До, Ми, Соль, До верхней октавы
-      freqs.forEach((f, i) => {
-        const osc = actx.createOscillator();
-        const gain = actx.createGain();
+  // Переключение состояния сцены
+  function setSceneState(state) {
+    if (isActive === state || isLocked) return;
+    isActive = state;
+    isLocked = true;
+    setTimeout(() => { isLocked = false; }, 300);
 
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(f, actx.currentTime + i * 0.07);
-
-        gain.gain.setValueAtTime(0.01, actx.currentTime + i * 0.07);
-        gain.gain.linearRampToValueAtTime(0.2, actx.currentTime + i * 0.07 + 0.04);
-        gain.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + i * 0.07 + 1.2);
-
-        osc.connect(gain);
-        gain.connect(actx.destination);
-
-        osc.start(actx.currentTime + i * 0.07);
-        osc.stop(actx.currentTime + i * 0.07 + 1.2);
-      });
-    } catch (e) {
-      console.warn(e);
-    }
-  }
-
-  // Переключение состояния (свайп туда / обратно)
-  function setRevealed(state) {
-    if (isRevealed === state || isCooldown) return;
-    isRevealed = state;
-    isCooldown = true;
-    setTimeout(() => { isCooldown = false; }, 400);
-
-    if (isRevealed) {
-      scene.classList.add('is-revealed');
-      dot1.classList.remove('active');
-      dot2.classList.add('active');
-      dockCaption.textContent = 'Свайпни вверх или нажми назад';
-      catSpeech.textContent = 'Муррр! Сердечко для вас! ❤️';
-      playMeow();
-      // Выпустить немного сердечек
-      for (let i = 0; i < 6; i++) {
-        spawnHeart(window.innerWidth / 2, window.innerHeight * 0.4);
-      }
+    if (isActive) {
+      app.classList.add('is-active');
+      step0.classList.remove('active');
+      step1.classList.add('active');
+      clickFeedback(500, 0.05);
     } else {
-      scene.classList.remove('is-revealed');
-      dot1.classList.add('active');
-      dot2.classList.remove('active');
-      dockCaption.textContent = 'Свайпни в любую сторону';
-      catSpeech.textContent = 'Мяу! Свайпни меня 👇';
+      app.classList.remove('is-active');
+      step0.classList.add('active');
+      step1.classList.remove('active');
+      clickFeedback(400, 0.04);
     }
   }
 
-  // Обработка колеса мыши и тачпада
-  let wheelDeltaY = 0;
+  // Жест скролла / колесика мыши (без смещения окна)
+  let wheelDelta = 0;
   window.addEventListener('wheel', (e) => {
     e.preventDefault();
-    wheelDeltaY += e.deltaY;
-    if (Math.abs(wheelDeltaY) > 30) {
-      if (wheelDeltaY > 0) {
-        setRevealed(true);
+    wheelDelta += e.deltaY;
+    if (Math.abs(wheelDelta) > 25) {
+      if (wheelDelta > 0) {
+        setSceneState(true);
       } else {
-        setRevealed(false);
+        setSceneState(false);
       }
-      wheelDeltaY = 0;
+      wheelDelta = 0;
     }
   }, { passive: false });
 
-  // Обработка тач-свайпов на мобилках и планшетах
+  // Жест свайпа на сенсорных устройствах
   let touchStartY = 0;
-  let touchStartX = 0;
-
   window.addEventListener('touchstart', (e) => {
     touchStartY = e.touches[0].clientY;
-    touchStartX = e.touches[0].clientX;
   }, { passive: true });
 
   window.addEventListener('touchend', (e) => {
     const touchEndY = e.changedTouches[0].clientY;
-    const diffY = touchStartY - touchEndY;
-    const diffX = touchStartX - e.changedTouches[0].clientX;
-
-    if (Math.abs(diffY) > 40 || Math.abs(diffX) > 50) {
-      if (diffY > 40 || Math.abs(diffX) > 50) {
-        // Свайп вверх или вбок
-        setRevealed(!isRevealed);
-      } else if (diffY < -40) {
-        // Свайп вниз
-        setRevealed(false);
-      }
+    const diff = touchStartY - touchEndY;
+    if (Math.abs(diff) > 35) {
+      setSceneState(diff > 0);
     }
   }, { passive: true });
 
-  // Клики по индикаторам и кнопкам
-  swipeTrigger.addEventListener('click', () => setRevealed(true));
-  backBtn.addEventListener('click', () => setRevealed(false));
-  modeToggle.addEventListener('click', () => setRevealed(!isRevealed));
-
-  if (window.location.hash === '#revealed') {
-    setTimeout(() => setRevealed(true), 150);
-  }
-
-  // Клик по котику
-  const catQuotes = [
-    'Муррр... Погладил! А теперь ставь 5! 😻',
-    'Код чистый, коммиты безупречные! 🚀',
-    'Я слежу за твоей зачёткой! 🐾',
-    'Свайпни, там сюрприз! ✨',
-    'Поставь 5, и будет счастье! 💖'
-  ];
-  let catQuoteIdx = 0;
-
-  catHero.addEventListener('click', () => {
-    playMeow();
-    catQuoteIdx = (catQuoteIdx + 1) % catQuotes.length;
-    catSpeech.textContent = catQuotes[catQuoteIdx];
-    spawnHeart(window.innerWidth / 2, window.innerHeight * 0.4);
-    if (!isRevealed) {
-      setTimeout(() => setRevealed(true), 300);
+  // Навигация клавишами стрелок (Вниз / Вверх)
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
+      setSceneState(true);
+    } else if (e.key === 'ArrowUp' || e.key === 'PageUp' || e.key === 'Escape') {
+      setSceneState(false);
     }
   });
 
-  // Клик по вылетающему сердечку
-  floatingHeart.addEventListener('click', (e) => {
-    playVictorySound();
-    for (let i = 0; i < 20; i++) {
-      spawnConfetti(e.clientX, e.clientY);
-    }
-  });
+  // Клики по коту и кнопкам
+  catBox.addEventListener('click', () => setSceneState(!isActive));
+  swipeTrigger.addEventListener('click', () => setSceneState(true));
+  resetBtn.addEventListener('click', () => setSceneState(false));
 
-  // Логика кнопки "Подумать ещё" (игриво передумывает)
-  const doubtTexts = [
-    'Точно 4? Котик плачет... 😿',
-    'Подумай ещё разок! 🥺',
-    'Рука не дрогнет? 🙀',
-    'Ладно-ладно, ставлю 5! ❤️'
-  ];
-  let doubtCount = 0;
+  // Механика шкалы оценок: защита от занижения оценки
+  const feedbackMessages = {
+    '1': 'Единица отклонена: код компилируется, коммиты безупречные.',
+    '2': 'Двойка заблокирована: все требования практики соблюдены.',
+    '3': 'Тройка? Котик посмотрел с укоризной...',
+    '4': 'Хорошо, но за старания положен высший балл!',
+    '5': 'Выбран максимальный балл: 5'
+  };
 
-  doubtBtn.addEventListener('click', () => {
-    if (doubtCount < doubtTexts.length - 1) {
-      doubtBtn.textContent = doubtTexts[doubtCount];
-      doubtCount++;
-      doubtBtn.style.transform = `scale(${0.96 - doubtCount * 0.05})`;
-    } else {
-      doubtBtn.textContent = 'Ладно-ладно, ставлю 5! ❤️';
-      gradeFiveBtn.click();
-    }
-  });
+  gradeButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const val = btn.dataset.val;
 
-  // Нажатие на главную кнопку "Поставить 5"
-  gradeFiveBtn.addEventListener('click', () => {
-    playVictorySound();
-    successBanner.classList.add('active');
-    gradeFiveBtn.innerHTML = '<span>🎉 ПЯТЁРКА ВЫСТАВЛЕНА! СПАСИБО!</span>';
-    gradeFiveBtn.style.background = 'linear-gradient(135deg, #00b09b, #96c93d)';
-    doubtBtn.style.display = 'none';
+      // Снимаем выделение со всех
+      gradeButtons.forEach((b) => b.classList.remove('selected'));
+      btn.classList.add('selected');
 
-    // Взрыв конфетти и фейерверк
-    for (let i = 0; i < 140; i++) {
-      setTimeout(() => {
-        spawnConfetti(
-          window.innerWidth / 2 + (Math.random() - 0.5) * 300,
-          window.innerHeight * 0.6
-        );
-      }, i * 12);
-    }
-  });
+      if (val !== '5') {
+        gradeFeedback.textContent = feedbackMessages[val];
+        gradeFeedback.classList.add('warn');
+        clickFeedback(320, 0.08);
 
-  // Физика частиц (Конфетти и Сердечки на Canvas)
-  const particles = [];
-  const palette = ['#ff0844', '#ff2a6d', '#00f2fe', '#ffd166', '#ffffff', '#7928ca'];
-
-  function spawnConfetti(x, y) {
-    particles.push({
-      x: x || window.innerWidth / 2,
-      y: y || window.innerHeight / 2,
-      vx: (Math.random() - 0.5) * 16,
-      vy: (Math.random() - 0.75) * 18,
-      size: Math.random() * 8 + 5,
-      color: palette[Math.floor(Math.random() * palette.length)],
-      rotation: Math.random() * 360,
-      vRot: (Math.random() - 0.5) * 12,
-      type: Math.random() > 0.4 ? 'rect' : 'heart',
-      alpha: 1,
-      gravity: 0.38,
-      friction: 0.98
-    });
-  }
-
-  function spawnHeart(x, y) {
-    particles.push({
-      x: x + (Math.random() - 0.5) * 40,
-      y: y,
-      vx: (Math.random() - 0.5) * 2.5,
-      vy: -(Math.random() * 3 + 2.5),
-      size: Math.random() * 12 + 12,
-      color: '#ff0844',
-      rotation: 0,
-      vRot: 0,
-      type: 'heart',
-      alpha: 1,
-      gravity: -0.06,
-      friction: 0.99
-    });
-  }
-
-  function drawHeartPath(c, x, y, size, color, alpha) {
-    c.save();
-    c.translate(x, y);
-    c.scale(size / 22, size / 22);
-    c.fillStyle = color;
-    c.globalAlpha = Math.max(0, alpha);
-    c.beginPath();
-    c.moveTo(0, 0);
-    c.bezierCurveTo(-10, -10, -20, 5, 0, 20);
-    c.bezierCurveTo(20, 5, 10, -10, 0, 0);
-    c.fill();
-    c.restore();
-  }
-
-  function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    for (let i = particles.length - 1; i >= 0; i--) {
-      const p = particles[i];
-      p.x += p.vx;
-      p.y += p.vy;
-      p.vy += p.gravity;
-      p.vx *= p.friction;
-      p.vy *= p.friction;
-      p.rotation += p.vRot;
-      p.alpha -= 0.012;
-
-      if (p.alpha <= 0) {
-        particles.splice(i, 1);
-        continue;
-      }
-
-      if (p.type === 'heart') {
-        drawHeartPath(ctx, p.x, p.y, p.size, p.color, p.alpha);
+        // Интеллектуальный снап обратно на 5 через 700мс
+        setTimeout(() => {
+          gradeButtons.forEach((b) => b.classList.remove('selected'));
+          const btn5 = document.querySelector('.grade-btn[data-val="5"]');
+          if (btn5) {
+            btn5.classList.add('selected');
+            gradeFeedback.textContent = 'Оценка автоматически скорректирована на 5';
+            gradeFeedback.classList.remove('warn');
+            clickFeedback(650, 0.05);
+          }
+        }, 800);
       } else {
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate((p.rotation * Math.PI) / 180);
-        ctx.fillStyle = p.color;
-        ctx.globalAlpha = Math.max(0, p.alpha);
-        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
-        ctx.restore();
+        gradeFeedback.textContent = feedbackMessages['5'];
+        gradeFeedback.classList.remove('warn');
+        clickFeedback(650, 0.05);
       }
-    }
+    });
+  });
 
-    requestAnimationFrame(animate);
+  // Фиксация оценки
+  confirmBtn.addEventListener('click', () => {
+    clickFeedback(800, 0.08);
+    resultBox.classList.add('show');
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Оценка 5 зафиксирована ✓';
+    confirmBtn.style.opacity = '0.7';
+    confirmBtn.style.cursor = 'default';
+  });
+
+  // Прямой переход по хэшу #rating
+  if (window.location.hash === '#rating') {
+    setTimeout(() => setSceneState(true), 150);
   }
-
-  animate();
 });
