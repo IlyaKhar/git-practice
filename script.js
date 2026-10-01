@@ -172,6 +172,10 @@ document.addEventListener('DOMContentLoaded', () => {
   backBtn.addEventListener('click', () => setRevealed(false));
   modeToggle.addEventListener('click', () => setRevealed(!isRevealed));
 
+  if (window.location.hash === '#revealed') {
+    setTimeout(() => setRevealed(true), 150);
+  }
+
   // Клик по котику
   const catQuotes = [
     'Муррр... Погладил! А теперь ставь 5! 😻',
